@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.XiangmuDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.xiangmu_name as xiangmuName
+        ,a.xiangmu_uuid_number as xiangmuUuidNumber
+        ,a.xiangmu_photo as xiangmuPhoto
+        ,a.xiangmu_types as xiangmuTypes
+        ,a.xiangmu_file as xiangmuFile
+        ,a.xiangmu_content as xiangmuContent
+        ,a.xiangmu_delete as xiangmuDelete
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.XiangmuView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+
+        FROM xiangmu  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.xiangmuName != '' and params.xiangmuName != null and params.xiangmuName != 'null' ">
+                and a.xiangmu_name like CONCAT('%',#{params.xiangmuName},'%')
+            </if>
+            <if test=" params.xiangmuUuidNumber != '' and params.xiangmuUuidNumber != null and params.xiangmuUuidNumber != 'null' ">
+                and a.xiangmu_uuid_number like CONCAT('%',#{params.xiangmuUuidNumber},'%')
+            </if>
+            <if test="params.xiangmuTypes != null and params.xiangmuTypes != ''">
+                and a.xiangmu_types = #{params.xiangmuTypes}
+            </if>
+            <if test=" params.xiangmuContent != '' and params.xiangmuContent != null and params.xiangmuContent != 'null' ">
+                and a.xiangmu_content like CONCAT('%',#{params.xiangmuContent},'%')
+            </if>
+            <if test="params.xiangmuDeleteStart != null and params.xiangmuDeleteStart != ''">
+                <![CDATA[  and a.xiangmu_delete >= #{params.xiangmuDeleteStart}   ]]>
+            </if>
+            <if test="params.xiangmuDeleteEnd != null and params.xiangmuDeleteEnd != ''">
+                <![CDATA[  and a.xiangmu_delete <= #{params.xiangmuDeleteEnd}   ]]>
+            </if>
+             <if test="params.xiangmuDelete != null and params.xiangmuDelete != ''">
+                and a.xiangmu_delete = #{params.xiangmuDelete}
+             </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
